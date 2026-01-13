@@ -1,36 +1,45 @@
-name: Build and Release
+name: Cross Build and Remote Run
 
 on:
   push:
-    branches: [ main ]  # 当 main 分支有变动时触发
-  workflow_dispatch:     # 允许手动触发
+    branches: [ main ]
 
 jobs:
+  # 任务 1：在云端编译
   build:
     runs-on: ubuntu-latest
+    outputs:
+      artifact-name: monitor-binaries
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-
-      - name: Build for Orange Pi (ARM64)
+      - name: Cross Build
         run: |
-          # 将这里的 -o 后的名称改掉
-          GOOS=linux GOARCH=arm64 go build -o orangepi-monitor-linux-arm64 .
-
-      - name: Build for Windows
-        run: |
-          # 同样修改 Windows 版
-          GOOS=windows GOARCH=amd64 go build -o orangepi-monitor-windows.exe .
-
-      - name: Upload Artifacts
+          GOOS=linux GOARCH=arm64 go build -o orangepi-monitor .
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: monitor-binaries
           path: |
-            monitor-linux-arm64
-            monitor-windows.exe
+            orangepi-monitor
             index.html
+
+  # 任务 2：在板子上下载并运行
+  deploy:
+    needs: build
+    runs-on: self-hosted # 你的板子在这里领命
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: monitor-binaries
+      - name: Run it
+        run: |
+          chmod +x orangepi-monitor
+          # 杀掉旧的，运行新的
+          pkill orangepi-monitor || true
+          nohup ./orangepi-monitor > log.txt 2>&1 &
+          echo "程序已在板端后台启动！"
