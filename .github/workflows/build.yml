@@ -36,10 +36,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: monitor-binaries
-      - name: Run it
+      - name: Restart Service
         run: |
           chmod +x orangepi-monitor
-          # 杀掉旧的，运行新的
-          pkill orangepi-monitor || true
-          nohup ./orangepi-monitor > log.txt 2>&1 &
-          echo "程序已在板端后台启动！"
+          # 告诉系统：代码更新了，请帮我重启服务
+          sudo systemctl restart op-monitor
