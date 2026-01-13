@@ -30,14 +30,22 @@ jobs:
   # 任务 2：在板子上下载并运行
   deploy:
     needs: build
-    runs-on: self-hosted # 你的板子在这里领命
+    runs-on: self-hosted
     steps:
-      - name: Download Artifacts
+      - name: Download
         uses: actions/download-artifact@v4
         with:
-          name: monitor-binaries
-      - name: Restart Service
+          name: monitor-binaries # 名字要和 build 任务中 upload 的名字一致
+
+      - name: Run it
         run: |
+          # 确保权限
           chmod +x orangepi-monitor
-          # 告诉系统：代码更新了，请帮我重启服务
-          sudo systemctl restart op-monitor
+          
+          # 强力重启
+          sudo fuser -k 8080/tcp || true
+          nohup ./orangepi-monitor > log.txt 2>&1 &
+          
+          # 给程序一点启动时间
+          sleep 1
+          cat log.txt
