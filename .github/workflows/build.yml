@@ -1,51 +1,31 @@
-name: Cross Build and Remote Run
+name: OPI Simple Deploy
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  # 任务 1：在云端编译
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      artifact-name: monitor-binaries
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-      - name: Cross Build
-        run: |
-          GOOS=linux GOARCH=arm64 go build -o orangepi-monitor .
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: monitor-binaries
-          path: |
-            orangepi-monitor
-            index.html
-
-  # 任务 2：在板子上下载并运行
   deploy:
-    needs: build
     runs-on: self-hosted
     steps:
-      - name: Download
-        uses: actions/download-artifact@v4
-        with:
-          name: monitor-binaries # 名字要和 build 任务中 upload 的名字一致
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Run it
+      - name: Build and Run
         run: |
-          # 确保权限
+          # 1. 进入代码目录并编译
+          go build -o orangepi-monitor .
+          
+          # 2. 赋予权限
           chmod +x orangepi-monitor
           
-          # 强力重启
+          # 3. 杀掉旧进程并启动
+          # 使用 fuser 可以精准清理占用 8080 端口的残余
           sudo fuser -k 8080/tcp || true
+          
+          # 4. 后台启动
           nohup ./orangepi-monitor > log.txt 2>&1 &
           
-          # 给程序一点启动时间
-          sleep 1
+          # 5. 打印一下日志前几行确认没崩
+          sleep 2
           cat log.txt
