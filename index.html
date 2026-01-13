@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Orange Pi 监控仪表盘</title>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: #1a1a1a;
+			color: #fff;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			margin: 0;
+		}
+
+		.container {
+			display: flex;
+			gap: 20px;
+		}
+
+		.card {
+			background: #2d2d2d;
+			padding: 30px;
+			border-radius: 15px;
+			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+			text-align: center;
+			min-width: 200px;
+			border-top: 5px solid #00ff88;
+		}
+
+		.label {
+			font-size: 14px;
+			color: #888;
+			text-transform: uppercase;
+			margin-bottom: 10px;
+		}
+
+		.value {
+			font-size: 48px;
+			font-weight: bold;
+			margin: 10px 0;
+			color: #00ff88;
+		}
+
+		.unit {
+			font-size: 18px;
+			color: #555;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="card">
+			<div class="label">CPU 温度</div>
+			<div class="value" id="temp">--</div>
+		</div>
+		<div class="card" style="border-top-color: #00d4ff;">
+			<div class="label">CPU 使用率</div>
+			<div class="value" id="usage">--</div>
+			<div class="unit">%</div>
+		</div>
+	</div>
+
+	<script>
+		async function updateStats() {
+			try {
+				// 前端主动发起请求 (联调开始！)
+				const response = await fetch('/api/stats');
+				const data = await response.json();
+
+				// 将后端发来的 JSON 数据更新到网页元素上
+				document.getElementById('temp').innerText = data.cpu_temp;
+				document.getElementById('usage').innerText = data.cpu_usage.toFixed(1);
+			} catch (error) {
+				console.error("获取数据失败:", error);
+			}
+		}
+
+		// 每一秒钟“老老实实” GET 一次
+		setInterval(updateStats, 1000);
+		// 页面打开时立即执行一次
+		updateStats();
+	</script>
+</body>
+
+</html>

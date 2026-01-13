@@ -1,0 +1,36 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]  # 当 main 分支有变动时触发
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build for Orange Pi (ARM64)
+        run: |
+          # 将这里的 -o 后的名称改掉
+          GOOS=linux GOARCH=arm64 go build -o orangepi-monitor-linux-arm64 .
+
+      - name: Build for Windows
+        run: |
+          # 同样修改 Windows 版
+          GOOS=windows GOARCH=amd64 go build -o orangepi-monitor-windows.exe .
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitor-binaries
+          path: |
+            monitor-linux-arm64
+            monitor-windows.exe
+            index.html
