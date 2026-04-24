@@ -1,63 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>System Monitor</title>
-	<link rel="stylesheet" href="static/css/style.css">
+	<link rel="stylesheet" href="/static/dist/app.css">
 </head>
-
 <body>
-	<header>
-		<h1>Orange Pi 系统监控</h1>
-		<p id="local-time">正在连接服务器...</p>
-	</header>
-
-	<div class="container">
-		<div class="card">
-			<div class="card-title">CPU 核心状态</div>
-			<div class="card-value"><span id="cpu-usage">0</span><span class="card-unit">%</span></div>
-			<p class="card-subtitle">频率: <span id="cpu-freq">0</span> MHz | 温度: <span id="cpu-temp">--</span></p>
-			<div class="progress-container">
-				<div id="cpu-bar" class="progress-bar"></div>
-			</div>
-		</div>
-
-		<div class="card">
-			<div class="card-title">内存资源</div>
-			<div class="card-value"><span id="mem-usage">0</span><span class="card-unit">%</span></div>
-			<p id="mem-summary" class="card-subtitle">0 / 0 GB</p>
-			<div class="progress-container">
-				<div id="mem-bar" class="progress-bar"></div>
-			</div>
-		</div>
-
-		<div class="card">
-			<div class="card-title">系统运行信息</div>
-			<div class="info-row"><span>OS:</span> <span id="sys-os">--</span></div>
-			<div class="info-row"><span>运行时间:</span> <span id="sys-uptime">--</span></div>
-			<div class="status-badge">系统状态: 正常</div>
-		</div>
-
-		<div class="card">
-			<div class="card-title">实时网络传输</div>
-			<div class="net-item">
-				<span class="net-label">下载 (↓)</span>
-				<span class="net-speed" id="net-down">0.0</span> <small>KB/s</small>
-			</div>
-			<div class="net-item">
-				<span class="net-label">上传 (↑)</span>
-				<span class="net-speed" id="net-up">0.0</span> <small>KB/s</small>
-			</div>
-		</div>
-	</div>
-
-	<div class="status-footer">
-		<span class="status-dot"></span> 数据每秒实时更新
-	</div>
-
-	<script src="static/js/app.js"></script>
+	<div id="app"></div>
+	<script src="/static/dist/app.js"></script>
 </body>
-
 </html>
