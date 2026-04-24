@@ -7,3 +7,4 @@
 .vscode/
 .idea/
 frontend/node_modules/
+static/dist/
